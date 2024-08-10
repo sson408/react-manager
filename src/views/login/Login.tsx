@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Button, Form, Input, message } from 'antd'
 import { loginUser } from '../../services/authService'
-import { LoginResponse } from '../../types/LoginResponse'
+import { AxiosError } from 'axios'
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
@@ -9,13 +9,19 @@ const Login: React.FC = () => {
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true)
     try {
-      const response: LoginResponse = await loginUser(values)
+      await loginUser(values)
       //console.log('User logged in:', response)
       message.success('User logged in successfully')
-      localStorage.setItem('token', response.token)
-      localStorage.setItem('refreshToken', response.refreshToken)
+      const params = new URLSearchParams(location.search)
+      location.href = params.get('callback') || '/welcome'
     } catch (error) {
-      message.error('Error logging in')
+      let errorMessage = 'Error logging in'
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || error.message
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      message.error(errorMessage)
     } finally {
       setLoading(false)
     }

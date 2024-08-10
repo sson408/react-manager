@@ -2,6 +2,8 @@ import httpService from './httpService'
 import { User } from '../types/User'
 import { LoginResponse } from '../types/LoginResponse'
 import { TokenRequest } from '../types/TokenRequest'
+import storage from '../utils/storage'
+import { Result } from '../types/api'
 
 export const registerUser = async (user: User): Promise<void> => {
   try {
@@ -14,15 +16,16 @@ export const registerUser = async (user: User): Promise<void> => {
 
 export const loginUser = async (
   credentials: Pick<User, 'username' | 'password'>
-): Promise<LoginResponse> => {
+): Promise<Result<LoginResponse>> => {
   try {
     const response = await httpService.post<LoginResponse>(
       '/auth/login',
       credentials
     )
-    if (response.token) {
-      localStorage.setItem('token', response.token)
-      localStorage.setItem('refreshToken', response.refreshToken)
+    const data = response.data
+    if (data) {
+      storage.set('token', data.token)
+      storage.set('refreshToken', data.refreshToken)
     }
     return response
   } catch (error) {
@@ -43,11 +46,11 @@ export const refreshToken = async (): Promise<LoginResponse> => {
       token,
       refreshToken
     } as TokenRequest)
-    if (response.token) {
-      localStorage.setItem('token', response.token)
-      localStorage.setItem('refreshToken', response.refreshToken)
+    if (response.data) {
+      localStorage.setItem('token', response.data.token)
+      localStorage.setItem('refreshToken', response.data.refreshToken)
     }
-    return response
+    return response.data
   } catch (error) {
     console.error('Error refreshing token:', error)
     throw error
