@@ -67,9 +67,9 @@ instance.interceptors.response.use(
           return instance(originalRequest)
         } catch (refreshError) {
           message.error('Session expired. Please log in again.')
-          //storage.remove('token')
-          //storage.remove('refreshToken')
-          // location.href = '/login'
+          storage.remove('token')
+          storage.remove('refreshToken')
+          location.href = '/login'
           return Promise.reject(refreshError)
         }
       } else {
