@@ -20,7 +20,10 @@ export const loginUser = async (
   try {
     const response = await httpService.post<LoginResponse>(
       '/auth/login',
-      credentials
+      credentials,
+      {
+        showLoading: false
+      }
     )
     const data = response.data
     if (data) {

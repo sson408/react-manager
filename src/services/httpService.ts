@@ -3,7 +3,7 @@ import { message } from 'antd'
 import { showLoading, hideLoading } from '../utils/loading'
 import storage from '../utils/storage'
 import env from '../config'
-import { Result } from '../types/api'
+import { Result, IConfig } from '../types/api'
 
 // Create an axios instance
 const instance = axios.create({
@@ -19,7 +19,8 @@ const instance = axios.create({
 // Request interceptor
 instance.interceptors.request.use(
   async config => {
-    showLoading()
+    if (config.showLoading) showLoading()
+
     const token = storage.get('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -41,6 +42,13 @@ instance.interceptors.response.use(
       message.error(data.msg)
       storage.remove('token')
       // location.href = '/login'
+    } else if (data.code != 0) {
+      if (!response.config.showError) {
+        return Promise.resolve(response)
+      } else {
+        message.error(data.msg)
+        return Promise.reject(data)
+      }
     }
     return response
   },
@@ -84,14 +92,18 @@ instance.interceptors.response.use(
 
 // Unified httpService
 const httpService = {
-  get: async <T>(url: string, params?: object): Promise<Result<T>> => {
-    const response = await instance.get<Result<T>>(url, { params })
+  get: async <T>(
+    url: string,
+    params?: object,
+    config: IConfig = { showLoading: true, showError: true }
+  ): Promise<Result<T>> => {
+    const response = await instance.get<Result<T>>(url, { params, ...config })
     return response.data
   },
   post: async <T>(
     url: string,
     data: unknown,
-    config?: AxiosRequestConfig
+    config: IConfig = { showLoading: true, showError: true }
   ): Promise<Result<T>> => {
     const response = await instance.post<Result<T>>(url, data, config)
     return response.data
