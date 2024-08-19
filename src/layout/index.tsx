@@ -1,10 +1,11 @@
 import React from 'react'
 import { Layout } from 'antd'
-import 'antd/dist/reset.css'
 
 import NavHeader from '../components/NavHeader'
 import NavFooter from '../components/NavFooter'
 import SideMenu from '../components/Menu'
+import { Outlet } from 'react-router-dom'
+import styles from './index.module.less'
 
 const { Content, Sider } = Layout
 const App: React.FC = () => {
@@ -25,17 +26,12 @@ const App: React.FC = () => {
       </Sider>
       <Layout>
         <NavHeader />
-        <Content style={{ margin: '24px 16px 0' }}>
-          <div
-            style={{
-              padding: 24,
-              minHeight: 360
-            }}
-          >
-            content
+        <Content className={styles.content}>
+          <div className={styles.wrapper}>
+            <Outlet></Outlet>
           </div>
+          <NavFooter />
         </Content>
-        <NavFooter />
       </Layout>
     </Layout>
   )
