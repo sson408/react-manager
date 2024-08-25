@@ -3,7 +3,7 @@ import Login from '../views/login/Login'
 import Error404 from '../views/404'
 import Error403 from '../views/403'
 import WelcomePage from '../views/welcome/welcome'
-import Layout from '../layout'
+import Layout from '../layout/layoutIndex'
 
 const router = [
   {

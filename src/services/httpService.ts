@@ -23,7 +23,7 @@ instance.interceptors.request.use(
 
     const token = storage.get('token')
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = 'Bearer ' + token
     }
     return config
   },
@@ -39,15 +39,18 @@ instance.interceptors.response.use(
     hideLoading()
     const data: Result = response.data
     if (data.code === 500001) {
-      message.error(data.msg)
+      message.error(data.message)
       storage.remove('token')
-      // location.href = '/login'
     } else if (data.code != 0) {
-      if (!response.config.showError) {
-        return Promise.resolve(response)
+      if (data.code !== 200) {
+        if (!response.config.showError) {
+          return Promise.resolve(response)
+        } else {
+          message.error(data.message)
+          return Promise.reject(data)
+        }
       } else {
-        message.error(data.msg)
-        return Promise.reject(data)
+        return Promise.resolve(response)
       }
     }
     return response
@@ -69,8 +72,8 @@ instance.interceptors.response.use(
             refreshToken
           })
 
-          //storage.set('token', response.data.token)
-          //storage.set('refreshToken', response.data.refreshToken)
+          storage.set('token', response.data.token)
+          storage.set('refreshToken', response.data.refreshToken)
           originalRequest.headers.Authorization = `Bearer ${response.data.token}`
           return instance(originalRequest)
         } catch (refreshError) {

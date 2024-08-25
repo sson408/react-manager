@@ -1,5 +1,5 @@
 export interface LoginResponse {
   token: string
   refreshToken: string
-  Msg: string
+  message: string
 }

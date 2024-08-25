@@ -3,18 +3,27 @@ import { Button, Form, Input, message } from 'antd'
 import { loginUser } from '../../services/authService'
 import './index.less'
 import { AxiosError } from 'axios'
+import { useDispatch } from 'react-redux'
+import { setToken } from '../../store/tokenSlice'
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
+  const dispatch = useDispatch()
 
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true)
     try {
       const response = await loginUser(values)
-      console.log('User logged in:', response)
+      //console.log('User logged in:', response)
       message.success('User logged in successfully')
-      const params = new URLSearchParams(location.search)
-      location.href = params.get('callback') || '/welcome'
+
+      //save token to redux store
+      const token = response.data.token
+      dispatch(setToken(token))
+
+      //const params = new URLSearchParams(location.search)
+      const callbackUrl = new URLSearchParams(location.search).get('callback')
+      location.href = callbackUrl || '/welcome'
     } catch (error) {
       //console.log('User logged in error:', error)
       let errorMessage = 'Error logging in'

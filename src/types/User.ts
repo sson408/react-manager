@@ -4,3 +4,13 @@ export interface User {
   password: string
   email?: string
 }
+
+export interface UserDetail {
+  guid: string
+  userName: string
+  email: string
+}
+
+export interface UserState {
+  user: UserDetail | null
+}
