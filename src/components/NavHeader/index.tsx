@@ -63,7 +63,7 @@ const NavHeader = () => {
           style={{ marginRight: 10 }}
         />
         <Dropdown menu={{ items, onClick }} trigger={['click']}>
-          <span className={styles.nickName}>{currentUser?.username}</span>
+          <span className={styles.nickName}>{currentUser?.userName}</span>
         </Dropdown>
       </div>
     </div>
