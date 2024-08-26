@@ -4,6 +4,7 @@ import Error404 from '../views/404'
 import Error403 from '../views/403'
 import WelcomePage from '../views/welcome/welcome'
 import Layout from '../layout/layoutIndex'
+import DashBoard from '../views/dashboard/dashboardIndex'
 
 const router = [
   {
@@ -20,6 +21,10 @@ const router = [
       {
         path: '/welcome',
         element: <WelcomePage />
+      },
+      {
+        path: '/dashboard',
+        element: <DashBoard />
       }
     ]
   },
