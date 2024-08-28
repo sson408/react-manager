@@ -10,7 +10,7 @@ import styles from './index.module.less'
 import { getUserDetail } from '../services/userSercice'
 import { AxiosError } from 'axios'
 
-const { Content, Sider } = Layout
+const { Sider } = Layout
 
 const App: React.FC = () => {
   const dispatch = useDispatch()
@@ -63,12 +63,10 @@ const App: React.FC = () => {
       </Sider>
       <Layout>
         <NavHeader />
-        <Content className={styles.content}>
-          <div className={styles.wrapper}>
-            <Outlet></Outlet>
-          </div>
-          <NavFooter />
-        </Content>
+        <div className={styles.wrapper}>
+          <Outlet></Outlet>
+        </div>
+        <NavFooter />
       </Layout>
     </Layout>
   )

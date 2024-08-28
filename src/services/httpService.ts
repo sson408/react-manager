@@ -41,6 +41,8 @@ instance.interceptors.response.use(
     if (data.code === 500001) {
       message.error(data.message)
       storage.remove('token')
+      storage.remove('refreshToken')
+      location.href = '/login?callback=' + encodeURIComponent(location.href)
     } else if (data.code != 0) {
       if (data.code !== 200) {
         if (!response.config.showError) {
@@ -77,10 +79,10 @@ instance.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${response.data.token}`
           return instance(originalRequest)
         } catch (refreshError) {
-          message.error('Session expired. Please log in again.')
+          message.error('Login expired. Please log in again.')
           storage.remove('token')
           storage.remove('refreshToken')
-          location.href = '/login'
+          location.href = '/login?callback=' + encodeURIComponent(location.href)
           return Promise.reject(refreshError)
         }
       } else {
