@@ -3,7 +3,7 @@ import { message } from 'antd'
 import { showLoading, hideLoading } from '../utils/loading'
 import storage from '../utils/storage'
 import env from '../config'
-import { Result, IConfig } from '../types/api'
+import { Result, IConfig, ResultData } from '../types/api'
 
 // Create an axios instance
 const instance = axios.create({
@@ -105,12 +105,32 @@ const httpService = {
     const response = await instance.get<Result<T>>(url, { params, ...config })
     return response.data
   },
+  getDataList: async <T>(
+    url: string,
+    params?: object,
+    config: IConfig = { showLoading: true, showError: true }
+  ): Promise<ResultData<T>> => {
+    // Return the full Axios response
+    const response = await instance.get<ResultData<T>>(url, {
+      params,
+      ...config
+    })
+    return response.data
+  },
   post: async <T>(
     url: string,
     data: unknown,
     config: IConfig = { showLoading: true, showError: true }
   ): Promise<Result<T>> => {
     const response = await instance.post<Result<T>>(url, data, config)
+    return response.data
+  },
+  postDataList: async <T>(
+    url: string,
+    data: unknown,
+    config: IConfig = { showLoading: true, showError: true }
+  ): Promise<ResultData<T>> => {
+    const response = await instance.post<ResultData<T>>(url, data, config)
     return response.data
   },
   put: async <T>(
