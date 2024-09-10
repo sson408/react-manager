@@ -12,7 +12,7 @@ const SideMenu = () => {
   const items = [
     {
       label: 'Workbench',
-      key: '1',
+      key: '/dashboard',
       icon: <DesktopOutlined />
     },
     {
@@ -22,12 +22,19 @@ const SideMenu = () => {
       children: [
         {
           label: 'User Management',
-          key: '3',
+          key: '/user',
           icon: <TeamOutlined />
         }
       ]
     }
   ]
+
+  const onMenuClick = (e: any) => {
+    console.log('e', e)
+    console.log('e', e.key)
+    navigate(e.key) // Navigate to the route corresponding to the key
+  }
+
   const handleClickLogo = () => {
     navigate('/welcome')
   }
@@ -38,10 +45,11 @@ const SideMenu = () => {
         <span>Realestate</span>
       </div>
       <Menu
-        defaultSelectedKeys={['1']}
+        defaultSelectedKeys={['/welcome']}
         mode='inline'
         theme='dark'
         items={items}
+        onClick={onMenuClick}
       />
     </div>
   )
