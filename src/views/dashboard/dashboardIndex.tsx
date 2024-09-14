@@ -115,10 +115,8 @@ export default function DashBoard() {
           </Descriptions.Item>
           <Descriptions.Item label='Status'>Active</Descriptions.Item>
           <Descriptions.Item label='Phone'>021 1234756</Descriptions.Item>
-          <Descriptions.Item label='Position'>Sales</Descriptions.Item>
-          <Descriptions.Item label='Department'>
-            Sales Department
-          </Descriptions.Item>
+          <Descriptions.Item label='Position'>Admin</Descriptions.Item>
+          <Descriptions.Item label='Department'>Admin</Descriptions.Item>
         </Descriptions>
       </div>
       <div className={styles.report}>

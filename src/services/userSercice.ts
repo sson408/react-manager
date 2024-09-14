@@ -13,27 +13,9 @@ export const getUserDetail = async (): Promise<Result<UserDetail>> => {
   }
 }
 
-// export const ListAll = async (
-//   pageNum: number = 1,
-//   pageSize: number = 20,
-// ): Promise<ResultData<UserDetail>> => {
-//   try {
-//     const queryString = qs.stringify({ pageNum, pageSize })
-
-//     const response = await httpService.getDataList<UserDetail>(
-//       '/user/listAll?' + queryString
-//     )
-
-//     return response
-//   } catch (error) {
-//     console.error('Error listing users:', error)
-//     throw error
-//   }
-// }
-
 export const ListAll = async (
-  pageNum: number = 1,
-  pageSize: number = 20,
+  pageNum: number,
+  pageSize: number,
   searchSummary: UserSearchSummary
 ): Promise<ResultData<UserDetail>> => {
   try {

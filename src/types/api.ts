@@ -19,9 +19,9 @@ export interface IConfig {
 }
 
 export interface PageInfo {
-  PageNum: number
-  PageSize: number
-  Total: number
+  pageNum: number
+  pageSize: number
+  total: number
 }
 
 export interface ResultData<T = any> {

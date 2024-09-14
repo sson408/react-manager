@@ -8,23 +8,28 @@ export default function UserList() {
   const [data, setData] = useState<UserDetail[]>([])
   const [loading, setLoading] = useState(false) // Loading state for UX
   const [searchForm] = Form.useForm() // Use form instance for controlling form
+  const [total, setTotal] = useState(0) // Total number of users
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 }) // Pagination state
 
   // Initial user fetch when the component is mounted
   useEffect(() => {
     getUserList()
-  }, [])
+  }, [pagination.current, pagination.pageSize])
 
   // Fetch user list based on searchSummary
   const getUserList = async (searchSummary: UserSearchSummary = {}) => {
     setLoading(true) // Start loading
     try {
-      const userData = await ListAll(1, 20, searchSummary)
+      const pageNum = pagination.current // Get current page numbern
+      const pageSize = pagination.pageSize // Get page size
+      const userData = await ListAll(pageNum, pageSize, searchSummary)
       const userList = userData.data
-      const usersWithKeys = userList.map(user => ({
-        ...user,
-        key: user.guid
-      }))
-      setData(usersWithKeys)
+      setData(userList)
+      setTotal(userData.pageInfo.total)
+      setPagination({
+        current: userData.pageInfo.pageNum,
+        pageSize: userData.pageInfo.pageSize
+      })
     } catch (error) {
       console.error('Error fetching user list:', error)
     } finally {
@@ -123,7 +128,10 @@ export default function UserList() {
         initialValues={{ state: 0 }}
       >
         <Form.Item name='filterText' label='Search'>
-          <Input placeholder='Enter keyword' />
+          <Input
+            placeholder='Enter keyword'
+            onPressEnter={onSearch} // Trigger search on Enter key
+          />
         </Form.Item>
         <Form.Item name='state' label='State'>
           <Select style={{ width: 120 }}>
@@ -155,10 +163,26 @@ export default function UserList() {
         </div>
         <Table
           bordered
+          rowKey='guid'
           loading={loading}
           rowSelection={{ type: 'checkbox' }}
           dataSource={data}
           columns={columns}
+          pagination={{
+            position: ['bottomRight'],
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: total,
+            showQuickJumper: true,
+            showSizeChanger: true,
+            showTotal: total => `Total ${total} users`,
+            onChange: (page, pageSize) => {
+              setPagination({
+                current: page,
+                pageSize: pageSize
+              })
+            }
+          }}
         />
       </div>
     </div>
