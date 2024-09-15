@@ -5,7 +5,7 @@ import Error403 from '../views/403'
 import WelcomePage from '../views/welcome/welcome'
 import Layout from '../layout/layoutIndex'
 import DashBoard from '../views/dashboard/dashboardIndex'
-import UserList from '../views/system/user/userIndex'
+import UserList from '../views/system/user/userManagement'
 
 const router = [
   {

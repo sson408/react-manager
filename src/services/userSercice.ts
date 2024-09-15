@@ -1,11 +1,17 @@
 import httpService from './httpService'
 import { UserDetail, UserSearchSummary } from '../types/User'
-import { Result, ResultData } from '../types/api'
+import { IConfig, Result, ResultData } from '../types/api'
 import qs from 'qs'
 
-export const getUserDetail = async (): Promise<Result<UserDetail>> => {
+export const getUserDetail = async (
+  config: IConfig = { showLoading: true, showError: true }
+): Promise<Result<UserDetail>> => {
   try {
-    const response = await httpService.get<UserDetail>('/user/currentUser')
+    const response = await httpService.get<UserDetail>(
+      '/user/currentUser',
+      {},
+      config
+    )
     return response
   } catch (error) {
     console.error('Error getting user detail:', error)
@@ -16,13 +22,15 @@ export const getUserDetail = async (): Promise<Result<UserDetail>> => {
 export const ListAll = async (
   pageNum: number,
   pageSize: number,
-  searchSummary: UserSearchSummary
+  searchSummary: UserSearchSummary,
+  config: IConfig = { showLoading: true, showError: true }
 ): Promise<ResultData<UserDetail>> => {
   try {
     const queryString = qs.stringify({ pageNum, pageSize })
     const response = await httpService.postDataList<UserDetail>(
       '/user/listAll?' + queryString,
-      searchSummary
+      searchSummary,
+      config
     )
 
     return response

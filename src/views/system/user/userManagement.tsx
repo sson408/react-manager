@@ -14,6 +14,7 @@ export default function UserList() {
   // Initial user fetch when the component is mounted
   useEffect(() => {
     getUserList()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.current, pagination.pageSize])
 
   // Fetch user list based on searchSummary
@@ -22,7 +23,9 @@ export default function UserList() {
     try {
       const pageNum = pagination.current // Get current page numbern
       const pageSize = pagination.pageSize // Get page size
-      const userData = await ListAll(pageNum, pageSize, searchSummary)
+      const userData = await ListAll(pageNum, pageSize, searchSummary, {
+        showLoading: false
+      }) // Fetch user list
       const userList = userData.data
       setData(userList)
       setTotal(userData.pageInfo.total)
