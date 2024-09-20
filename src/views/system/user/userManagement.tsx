@@ -1,15 +1,26 @@
-import { Button, Table, Form, Input, Select, Space } from 'antd'
-import { ListAll } from '../../../services/userSercice'
-import { useEffect, useState } from 'react'
+import { Button, Table, Form, Input, Select, Space, message, Modal } from 'antd'
+import {
+  ListAll,
+  DeleteUser,
+  BatchDeleteUser
+} from '../../../services/userSercice'
+import React, { useEffect, useRef, useState } from 'react'
 import { UserDetail, UserSearchSummary } from '../../../types/User'
 import { ColumnsType } from 'antd/es/table'
+import { IAction } from '../../../types/modal'
+import ModalUser from './modalUser'
+import { AxiosError } from 'axios'
 
 export default function UserList() {
   const [data, setData] = useState<UserDetail[]>([])
   const [loading, setLoading] = useState(false) // Loading state for UX
   const [searchForm] = Form.useForm() // Use form instance for controlling form
   const [total, setTotal] = useState(0) // Total number of users
+  const [selectedUserGuids, setSelectedUserGuids] = useState<string[]>([]) // Selected user guids
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 }) // Pagination state
+  const userRef = useRef<{
+    open: (type: IAction, data?: UserDetail) => void
+  }>()
 
   // Initial user fetch when the component is mounted
   useEffect(() => {
@@ -18,9 +29,14 @@ export default function UserList() {
   }, [pagination.current, pagination.pageSize])
 
   // Fetch user list based on searchSummary
-  const getUserList = async (searchSummary: UserSearchSummary = {}) => {
+  const getUserList = async () => {
     setLoading(true) // Start loading
     try {
+      const formValues = await searchForm.validateFields() // Validate and get form values
+      const searchSummary: UserSearchSummary = {
+        filterWord: formValues.filterText || '', // Safely get filterText
+        stateId: formValues.state || 0 // Safely get stateId, default to 0
+      }
       const pageNum = pagination.current // Get current page numbern
       const pageSize = pagination.pageSize // Get page size
       const userData = await ListAll(pageNum, pageSize, searchSummary, {
@@ -43,12 +59,7 @@ export default function UserList() {
   // Handle search form submission
   const onSearch = async () => {
     try {
-      const formValues = await searchForm.validateFields() // Validate and get form values
-      const searchSummary: UserSearchSummary = {
-        filterWord: formValues.filterText || '', // Safely get filterText
-        stateId: formValues.state || 0 // Safely get stateId, default to 0
-      }
-      getUserList(searchSummary) // Call the function with searchSummary
+      getUserList() // Call the function with searchSummary
     } catch (error) {
       console.error('Form validation failed:', error)
     }
@@ -60,21 +71,97 @@ export default function UserList() {
     getUserList() // Fetch all users without filters
   }
 
+  const onAddClick = () => {
+    userRef.current?.open('create')
+  }
+
+  const onRowEditClick = (data: UserDetail) => {
+    userRef.current?.open('edit', data)
+  }
+
+  const onRowDeleteClick = async (guid: string) => {
+    Modal.confirm({
+      title: 'Please Confirm',
+      content: 'Are you sure you want to delete this user?',
+      onOk() {
+        realDelete(guid)
+      }
+    })
+  }
+
+  const realDelete = async (guid: string) => {
+    try {
+      setLoading(true)
+      const response = await DeleteUser(guid)
+      message.success(response.message)
+      getUserList()
+    } catch (error) {
+      let errorMessage = 'Failed to delete user'
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || error.message
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      message.error(errorMessage)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Handle batch delete action
+  const onBatchDeleteClick = () => {
+    if (selectedUserGuids.length === 0) {
+      message.warning('Please select at least one user')
+      return
+    }
+    Modal.confirm({
+      title: 'Please Confirm',
+      content: 'Are you sure you want to delete these users?',
+      onOk() {
+        batchDelete()
+      }
+    })
+  }
+
+  const batchDelete = async () => {
+    try {
+      setLoading(true)
+      const response = await BatchDeleteUser(selectedUserGuids)
+      message.success(response.message)
+      getUserList()
+    } catch (error) {
+      let errorMessage = 'Failed to delete users'
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || error.message
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      message.error(errorMessage)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const columns: ColumnsType<UserDetail> = [
     {
       title: 'User Name',
-      dataIndex: 'userName',
-      key: 'userName'
+      dataIndex: 'userName'
+    },
+    {
+      title: 'First Name',
+      dataIndex: 'firstName'
+    },
+    {
+      title: 'Last Name',
+      dataIndex: 'lastName'
     },
     {
       title: 'Email',
-      dataIndex: 'email',
-      key: 'email'
+      dataIndex: 'email'
     },
     {
       title: 'User Role',
       dataIndex: 'userRoleId',
-      key: 'userRoleId',
       render(userRoleId: number) {
         return {
           1: 'Admin',
@@ -85,7 +172,6 @@ export default function UserList() {
     {
       title: 'State',
       dataIndex: 'stateId',
-      key: 'stateId',
       render(stateId: number) {
         return {
           1: 'Active',
@@ -96,7 +182,6 @@ export default function UserList() {
     {
       title: 'Department',
       dataIndex: 'departmentId',
-      key: 'departmentId',
       render(departmentId: number) {
         return {
           1: 'Admin',
@@ -108,14 +193,21 @@ export default function UserList() {
     },
     {
       title: '',
-      key: 'actions',
-      render() {
+      render(record) {
         return (
           <Space>
-            <Button type='text'>Edit</Button>
-            <Button type='text' danger>
-              Delete
+            <Button type='text' onClick={() => onRowEditClick(record)}>
+              Edit
             </Button>
+            {record.stateId !== 2 && (
+              <Button
+                type='text'
+                danger
+                onClick={() => onRowDeleteClick(record.guid)}
+              >
+                Delete
+              </Button>
+            )}
           </Space>
         )
       }
@@ -158,8 +250,10 @@ export default function UserList() {
         <div className='header-wrapper'>
           <div className='title'>UserList</div>
           <div className='action'>
-            <Button type='primary'>Add</Button>
-            <Button type='primary' danger>
+            <Button type='primary' onClick={onAddClick}>
+              Add
+            </Button>
+            <Button type='primary' danger onClick={onBatchDeleteClick}>
               Delete
             </Button>
           </div>
@@ -168,7 +262,13 @@ export default function UserList() {
           bordered
           rowKey='guid'
           loading={loading}
-          rowSelection={{ type: 'checkbox' }}
+          rowSelection={{
+            type: 'checkbox',
+            selectedRowKeys: selectedUserGuids,
+            onChange: (selectedRowKeys: React.Key[]) => {
+              setSelectedUserGuids(selectedRowKeys as string[])
+            }
+          }}
           dataSource={data}
           columns={columns}
           pagination={{
@@ -188,6 +288,12 @@ export default function UserList() {
           }}
         />
       </div>
+      <ModalUser
+        mRef={userRef}
+        update={() => {
+          getUserList()
+        }}
+      />
     </div>
   )
 }

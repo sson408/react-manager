@@ -10,7 +10,8 @@ const env = (document.documentElement.dataset.env as ENV) || 'stg'
 
 const config = {
   dev: {
-    apiBaseUrl: 'https://localhost:44365/api'
+    apiBaseUrl: 'https://localhost:44365/api',
+    fileUrl: 'https://localhost:44365'
   },
   prd: {
     apiBaseUrl: '../api'

@@ -25,7 +25,7 @@ const App: React.FC = () => {
   const getLoggedUser = async () => {
     try {
       // Get current logged in user
-      const resp = await getUserDetail({ showLoading: false })
+      const resp = await getUserDetail({ showLoading: true })
       if (resp && resp.data) {
         const data = resp.data
         dispatch(setUser(data))
