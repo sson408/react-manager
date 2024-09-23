@@ -6,6 +6,7 @@ import WelcomePage from '../views/welcome/welcome'
 import Layout from '../layout/layoutIndex'
 import DashBoard from '../views/dashboard/dashboardIndex'
 import UserList from '../views/system/user/userManagement'
+import { PropertyList } from '../views/system/property/propertyManagement'
 
 const router = [
   {
@@ -30,6 +31,10 @@ const router = [
       {
         path: '/user',
         element: <UserList />
+      },
+      {
+        path: '/property',
+        element: <PropertyList />
       }
     ]
   },

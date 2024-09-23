@@ -24,14 +24,19 @@ const SideMenu = () => {
           label: 'User Management',
           key: '/user',
           icon: <TeamOutlined />
+        },
+        {
+          label: 'Property Management',
+          key: '/property',
+          icon: <TeamOutlined />
         }
       ]
     }
   ]
 
   const onMenuClick = (e: any) => {
-    console.log('e', e)
-    console.log('e', e.key)
+    //console.log('e', e)
+    //console.log('e', e.key)
     navigate(e.key) // Navigate to the route corresponding to the key
   }
 

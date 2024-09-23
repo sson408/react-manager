@@ -161,11 +161,14 @@ const ModalUser = (props: IModalProp) => {
             errorMessage = error.message
           }
           message.error(errorMessage)
+        } finally {
+          setLoading(false)
         }
       }
     }
   }
   const onCancelClick = () => {
+    form.resetFields()
     setImg('')
     setVisbile(false)
   }
@@ -179,6 +182,7 @@ const ModalUser = (props: IModalProp) => {
       onOk={onSaveClick}
       onCancel={onCancelClick}
       confirmLoading={loading}
+      maskClosable={false}
     >
       <Form labelCol={{ span: 4 }} labelAlign='right' form={form}>
         <Form.Item
@@ -188,8 +192,8 @@ const ModalUser = (props: IModalProp) => {
             { required: true, message: '' },
             {
               min: 5,
-              max: 12,
-              message: 'User name must be between 5 and 12 characters'
+              max: 50,
+              message: 'User name must be between 5 and 50 characters'
             }
           ]}
         >

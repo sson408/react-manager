@@ -49,7 +49,7 @@ const App: React.FC = () => {
     <Layout>
       <Sider
         collapsed={isSidebarCollapsed}
-        width={220}
+        width={240}
         breakpoint='lg'
         collapsedWidth='0'
         onBreakpoint={broken => {
