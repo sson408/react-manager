@@ -22,7 +22,8 @@ export const PropertyList = () => {
       const formValues = await searchForm.validateFields() // Validate and get form values
       const searchSummary: PropertySearchSummary = {
         filterWord: formValues.filterText || '', // Safely get filterText
-        stateId: formValues.state || 0 // Safely get stateId, default to 0
+        statusId: formValues.statusId || 0, // Safely get statusId, default to 0
+        typeId: formValues.typeId || 0 // Safely get typeId, default to 0
       }
       const pageNum = pagination.current // Get current page numbern
       const pageSize = pagination.pageSize // Get page size
@@ -44,8 +45,13 @@ export const PropertyList = () => {
     }
   }
 
-  const onSearch = () => {}
-  const onReset = () => {}
+  const onSearch = () => {
+    getPropertyList()
+  }
+  const onReset = () => {
+    searchForm.resetFields()
+    getPropertyList()
+  }
   const onAddClick = () => {}
   const onBatchDeleteClick = () => {}
 
@@ -76,6 +82,21 @@ export const PropertyList = () => {
           2: 'Withdrawn',
           3: 'Sold'
         }[stateId]
+      }
+    },
+    {
+      title: 'Type',
+      width: 100,
+      dataIndex: 'typeId',
+      render(typeId: number) {
+        return {
+          1: 'House',
+          2: 'Apartment',
+          3: 'Townhouse',
+          4: 'Land',
+          5: 'Rural',
+          6: 'Commercial'
+        }[typeId]
       }
     },
     {
@@ -120,7 +141,7 @@ export const PropertyList = () => {
         form={searchForm} // Bind the form instance to control the form
         className='search-form'
         layout='inline'
-        initialValues={{ state: 0 }}
+        initialValues={{ statusId: 0, typeId: 0 }}
       >
         <Form.Item name='filterText' label='Search'>
           <Input
@@ -128,12 +149,23 @@ export const PropertyList = () => {
             onPressEnter={onSearch} // Trigger search on Enter key
           />
         </Form.Item>
-        <Form.Item name='state' label='State'>
+        <Form.Item name='statusId' label='Status'>
           <Select style={{ width: 120 }}>
             <Select.Option value={0}>All</Select.Option>
             <Select.Option value={1}>Listing</Select.Option>
             <Select.Option value={2}>Withdrawn</Select.Option>
             <Select.Option value={3}>Sold</Select.Option>
+          </Select>
+        </Form.Item>
+        <Form.Item name='typeId' label='Type'>
+          <Select style={{ width: 120 }}>
+            <Select.Option value={0}>All</Select.Option>
+            <Select.Option value={1}>House</Select.Option>
+            <Select.Option value={2}>Apartment</Select.Option>
+            <Select.Option value={3}>Townhouse</Select.Option>
+            <Select.Option value={4}>Land</Select.Option>
+            <Select.Option value={5}>Rural</Select.Option>
+            <Select.Option value={6}>Commercial</Select.Option>
           </Select>
         </Form.Item>
         <Form.Item>

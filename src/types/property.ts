@@ -31,5 +31,6 @@ export interface PropertyDetail {
 
 export interface PropertySearchSummary {
   filterWord?: string
-  stateId?: string
+  statusId?: number
+  typeId?: number
 }
