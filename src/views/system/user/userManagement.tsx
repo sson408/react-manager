@@ -288,12 +288,7 @@ export default function UserList() {
           }}
         />
       </div>
-      <ModalUser
-        mRef={userRef}
-        update={() => {
-          getUserList()
-        }}
-      />
+      <ModalUser mRef={userRef} update={getUserList} />
     </div>
   )
 }

@@ -10,7 +10,7 @@ import { UserDetail, UserUpdateSummary } from '../../../types/User'
 import { createUser, updateUser } from '../../../services/userSercice'
 import { AxiosError } from 'axios'
 
-const ModalUser = (props: IModalProp) => {
+const ModalUser = (props: IModalProp<UserDetail>) => {
   const [loading, setLoading] = useState(false)
   const [img, setImg] = useState('')
   const [form] = Form.useForm()
@@ -199,6 +199,7 @@ const ModalUser = (props: IModalProp) => {
         >
           <Input
             placeholder='Please enter user name'
+            autoComplete='off'
             disabled={action === 'edit'}
           ></Input>
         </Form.Item>
@@ -310,7 +311,10 @@ const ModalUser = (props: IModalProp) => {
             }
           ]}
         >
-          <Input.Password placeholder='Please enter password' />
+          <Input.Password
+            placeholder='Please enter password'
+            autoComplete='off'
+          />
         </Form.Item>
         <Form.Item
           label='Confirm Password'

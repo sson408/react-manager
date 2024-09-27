@@ -1,9 +1,11 @@
 import { Button, Table, Form, Input, Select, Space } from 'antd'
 import { ListAll } from '../../../services/propertyService'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PropertyDetail, PropertySearchSummary } from '../../../types/property'
 import { ColumnsType } from 'antd/es/table'
 import config from '../../../config'
+import ModalProperty from './modalProperty'
+import { IAction } from '../../../types/modal'
 
 export const PropertyList = () => {
   const [data, setData] = useState<PropertyDetail[]>([])
@@ -11,6 +13,9 @@ export const PropertyList = () => {
   const [loading, setLoading] = useState(false) // Loading state for UX
   const [searchForm] = Form.useForm()
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
+  const userRef = useRef<{
+    open: (type: IAction, data?: PropertyDetail) => void
+  }>()
 
   useEffect(() => {
     getPropertyList()
@@ -52,7 +57,14 @@ export const PropertyList = () => {
     searchForm.resetFields()
     getPropertyList()
   }
-  const onAddClick = () => {}
+  const onAddClick = () => {
+    userRef.current?.open('create')
+  }
+
+  const onRowEditClick = (data: PropertyDetail) => {
+    userRef.current?.open('edit', data)
+  }
+
   const onBatchDeleteClick = () => {}
 
   const columns: ColumnsType<PropertyDetail> = [
@@ -123,10 +135,12 @@ export const PropertyList = () => {
     {
       title: '',
       width: 60,
-      render() {
+      render(record) {
         return (
           <Space>
-            <Button type='text'>Edit</Button>
+            <Button type='text' onClick={() => onRowEditClick(record)}>
+              Edit
+            </Button>
             <Button type='text' danger>
               Delete
             </Button>
@@ -214,6 +228,12 @@ export const PropertyList = () => {
           }}
         />
       </div>
+      <ModalProperty
+        mRef={userRef}
+        update={() => {
+          getPropertyList()
+        }}
+      />
     </div>
   )
 }
