@@ -20,6 +20,7 @@ export interface UserDetail {
   firstName: string
   lastName: string
   avatarUrl: string
+  userNameDisplay: string
 }
 
 export interface UserUpdateSummary {

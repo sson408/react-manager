@@ -40,6 +40,23 @@ export const ListAll = async (
   }
 }
 
+//for dropdown list
+export const SimpleList = async (
+  config: IConfig = { showLoading: true, showError: true }
+): Promise<ResultData<UserDetail>> => {
+  try {
+    const response = await httpService.getDataList<UserDetail>(
+      '/user/simpleList',
+      {},
+      config
+    )
+    return response
+  } catch (error) {
+    console.error('Error getting simple user list:', error)
+    throw error
+  }
+}
+
 export const createUser = async (
   userUpdateSummary: UserUpdateSummary,
   config: IConfig = { showLoading: true, showError: true }

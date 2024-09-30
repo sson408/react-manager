@@ -1,6 +1,6 @@
 import httpService from './httpService'
 import { PropertyDetail, PropertySearchSummary } from '../types/property'
-import { IConfig, ResultData } from '../types/api'
+import { IConfig, Result, ResultData } from '../types/api'
 import qs from 'qs'
 
 export const ListAll = async (
@@ -20,6 +20,23 @@ export const ListAll = async (
     return response
   } catch (error) {
     console.error('Error listing properties:', error)
+    throw error
+  }
+}
+
+export const getPropertyDetail = async (
+  guid: string,
+  config: IConfig = { showLoading: true, showError: true }
+): Promise<Result<PropertyDetail>> => {
+  try {
+    const response = await httpService.get<PropertyDetail>(
+      `/property/${guid}`,
+      {},
+      config
+    )
+    return response
+  } catch (error) {
+    console.error('Error getting property detail:', error)
     throw error
   }
 }
