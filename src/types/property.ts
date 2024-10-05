@@ -29,6 +29,16 @@ export interface PropertyDetail {
   updatedDateTimeDisplay: string
 }
 
+export interface PropertyUpdateSummary {
+  guid?: string
+  address?: string
+  statusId?: number
+  typeId?: number
+  listingAgent1Guid?: string
+  listingAgent2Guid?: string
+  dateTimeStamp?: number
+}
+
 export interface PropertySearchSummary {
   filterWord?: string
   statusId?: number

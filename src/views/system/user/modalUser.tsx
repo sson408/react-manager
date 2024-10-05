@@ -86,7 +86,7 @@ const ModalUser = (props: IModalProp<UserDetail>) => {
 
   const uploadProps = {
     name: 'file',
-    action: `https://localhost:44365/api/user/${userGuid}/uploadAvatar`, //test url need to change
+    action: `https://localhost:44365/api/user/${userGuid}/uploadAvatar`,
     headers: {
       Authorization: `Bearer ${storage.get('token')}`
     },
@@ -123,7 +123,7 @@ const ModalUser = (props: IModalProp<UserDetail>) => {
           setVisbile(false)
         } catch (error) {
           //console.log('User logged in error:', error)
-          let errorMessage = 'Error logging in'
+          let errorMessage = 'Error Creating User'
           if (error instanceof AxiosError) {
             errorMessage = error.response?.data?.message || error.message
           } else if (error instanceof Error) {

@@ -1,11 +1,17 @@
-import { Button, Table, Form, Input, Select, Space } from 'antd'
-import { ListAll } from '../../../services/propertyService'
+import { Button, Table, Form, Input, Select, Space, Modal } from 'antd'
+import {
+  BatchDeleteProperty,
+  DeleteProperty,
+  ListAll
+} from '../../../services/propertyService'
 import { useEffect, useRef, useState } from 'react'
 import { PropertyDetail, PropertySearchSummary } from '../../../types/property'
 import { ColumnsType } from 'antd/es/table'
 import config from '../../../config'
 import ModalProperty from './modalProperty'
 import { IAction } from '../../../types/modal'
+import { message } from '../../../utils/AntdGlobal'
+import { AxiosError } from 'axios'
 
 export const PropertyList = () => {
   const [data, setData] = useState<PropertyDetail[]>([])
@@ -13,6 +19,9 @@ export const PropertyList = () => {
   const [loading, setLoading] = useState(false) // Loading state for UX
   const [searchForm] = Form.useForm()
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
+  const [selectedPropertyGuids, setSelectedPropertyGuids] = useState<string[]>(
+    []
+  ) // Selected user
   const userRef = useRef<{
     open: (type: IAction, data?: PropertyDetail) => void
   }>()
@@ -65,7 +74,67 @@ export const PropertyList = () => {
     userRef.current?.open('edit', data)
   }
 
-  const onBatchDeleteClick = () => {}
+  const onRowDeleteClick = (guid: string) => {
+    Modal.confirm({
+      title: 'Please Confirm',
+      content: 'Are you sure you want to delete this property?',
+      onOk() {
+        realDelete(guid)
+      }
+    })
+  }
+
+  const realDelete = async (guid: string) => {
+    try {
+      setLoading(true)
+      const response = await DeleteProperty(guid)
+      message.success(response.message)
+      getPropertyList()
+    } catch (error) {
+      let errorMessage = 'Failed to delete property'
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || error.message
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      message.error(errorMessage)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onBatchDeleteClick = () => {
+    if (selectedPropertyGuids.length === 0) {
+      message.warning('Please select at least one property')
+      return
+    }
+    Modal.confirm({
+      title: 'Please Confirm',
+      content: 'Are you sure you want to delete these properties?',
+      onOk() {
+        batchDelete()
+      }
+    })
+  }
+
+  const batchDelete = async () => {
+    try {
+      setLoading(true)
+      const response = await BatchDeleteProperty(selectedPropertyGuids)
+      message.success(response.message)
+      getPropertyList()
+    } catch (error) {
+      let errorMessage = 'Failed to delete properties'
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || error.message
+      } else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      message.error(errorMessage)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const columns: ColumnsType<PropertyDetail> = [
     {
@@ -141,7 +210,11 @@ export const PropertyList = () => {
             <Button type='text' onClick={() => onRowEditClick(record)}>
               Edit
             </Button>
-            <Button type='text' danger>
+            <Button
+              type='text'
+              danger
+              onClick={() => onRowDeleteClick(record.guid)}
+            >
               Delete
             </Button>
           </Space>
@@ -209,6 +282,13 @@ export const PropertyList = () => {
           bordered
           rowKey='guid'
           loading={loading}
+          rowSelection={{
+            type: 'checkbox',
+            selectedRowKeys: selectedPropertyGuids,
+            onChange: (selectedRowKeys: React.Key[]) => {
+              setSelectedPropertyGuids(selectedRowKeys as string[])
+            }
+          }}
           dataSource={data}
           columns={columns}
           pagination={{
