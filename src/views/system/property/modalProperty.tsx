@@ -1,4 +1,5 @@
 import {
+  Button,
   DatePicker,
   Form,
   Input,
@@ -19,8 +20,8 @@ import { RcFile } from 'antd/es/upload'
 import './property.module.less'
 import { SimpleList } from '../../../services/userSercice'
 import { UserDetail } from '../../../types/User'
-import moment from 'moment'
 import { AxiosError } from 'axios'
+
 import {
   CreateProperty,
   updateProperty
@@ -37,7 +38,6 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
   const [form] = Form.useForm()
   const [commissionForm] = Form.useForm()
   const [agentList, setAgentList] = useState<UserDetail[]>([])
-  const [avatarFile, setAvatarFile] = useState<RcFile | null>(null)
   const addressInputRef = useRef<InputRef>(null)
   const dateFormate = 'DD MMM YYYY'
 
@@ -262,6 +262,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
   const open = (type: IAction, data?: PropertyDetail) => {
     //clear form
     form.resetFields()
+    commissionForm.resetFields()
 
     setAction(type)
     setVisible(true)
@@ -284,6 +285,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
 
   const onCancelClick = () => {
     form.resetFields()
+    commissionForm.resetFields()
     setImg('')
     setVisible(false)
   }
@@ -352,6 +354,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
     // console.log('commissionValues', commissionValues)
   }
 
+  const handleSoldClick = () => {}
   return (
     <Modal
       title={action === 'create' ? 'Create Property' : 'Edit Property'}
@@ -362,6 +365,27 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
       onCancel={onCancelClick}
       confirmLoading={loading}
       maskClosable={false}
+      footer={[
+        <Button
+          key='sold'
+          type='primary'
+          onClick={() => handleSoldClick()}
+          style={{ float: 'left' }}
+        >
+          Sold
+        </Button>,
+        <Button key='cancel' onClick={onCancelClick}>
+          Cancel
+        </Button>,
+        <Button
+          key='submit'
+          type='primary'
+          onClick={onSaveClick}
+          loading={loading}
+        >
+          {action === 'create' ? 'Create New' : 'Save Changes'}
+        </Button>
+      ]}
     >
       <Tabs defaultActiveKey='1' items={tabItems}></Tabs>
     </Modal>
