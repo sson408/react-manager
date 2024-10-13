@@ -14,6 +14,8 @@ import { IAction, IModalProp } from '../../../types/modal'
 import { useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { PropertyDetail, PropertyUpdateSummary } from '../../../types/property'
 import CommissionTab from '../../../components/Tab/Property/commissionTab'
+import BuyerTab from '../../../components/Tab/Property/buyerTab'
+import OriginalOwnerTab from '../../../components/Tab/Property/originalOwerTab'
 import config from '../../../config'
 import { message } from '../../../utils/AntdGlobal'
 import { RcFile } from 'antd/es/upload'
@@ -24,6 +26,7 @@ import { AxiosError } from 'axios'
 
 import {
   CreateProperty,
+  SetSold,
   updateProperty
 } from '../../../services/propertyService'
 import dayjs from 'dayjs'
@@ -37,6 +40,8 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
   const [img, setImg] = useState('')
   const [form] = Form.useForm()
   const [commissionForm] = Form.useForm()
+  const [buyerForm] = Form.useForm()
+  const [originalOwnerForm] = Form.useForm()
   const [agentList, setAgentList] = useState<UserDetail[]>([])
   const addressInputRef = useRef<InputRef>(null)
   const dateFormate = 'DD MMM YYYY'
@@ -153,7 +158,6 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
             <Select placeholder='Please select property status'>
               <Select.Option value={1}>Listing</Select.Option>
               <Select.Option value={2}>Withdrawn</Select.Option>
-              <Select.Option value={3}>Sold</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item
@@ -223,6 +227,16 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
       key: '2',
       label: 'Commission',
       children: <CommissionTab form={commissionForm} />
+    },
+    {
+      key: '3',
+      label: 'Buyers',
+      children: <BuyerTab form={buyerForm} />
+    },
+    {
+      key: '4',
+      label: 'Original Owner',
+      children: <OriginalOwnerTab form={originalOwnerForm} />
     }
   ]
 
@@ -263,6 +277,8 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
     //clear form
     form.resetFields()
     commissionForm.resetFields()
+    buyerForm.resetFields()
+    originalOwnerForm.resetFields()
 
     setAction(type)
     setVisible(true)
@@ -286,6 +302,8 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
   const onCancelClick = () => {
     form.resetFields()
     commissionForm.resetFields()
+    buyerForm.resetFields()
+    originalOwnerForm.resetFields()
     setImg('')
     setVisible(false)
   }
@@ -354,7 +372,136 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
     // console.log('commissionValues', commissionValues)
   }
 
-  const handleSoldClick = () => {}
+  const handleSoldClick = () => {
+    Modal.confirm({
+      title: 'Please Confirm',
+      content: 'Are you sure you want to mark this property as sold?',
+      onOk() {
+        realSold()
+      }
+    })
+  }
+
+  const realSold = async () => {
+    const valid = await form.validateFields()
+    const commissionValues = commissionForm.getFieldsValue()
+    const buyers = buyerForm.getFieldsValue().buyers
+
+    // Check if buyers is an array and has at least one element
+    const buyer1 = Array.isArray(buyers) && buyers.length > 0 ? buyers[0] : {}
+    const buyer2 = Array.isArray(buyers) && buyers.length > 1 ? buyers[1] : {}
+
+    const originalOwnerValues = originalOwnerForm.getFieldsValue()
+
+    setLoading(true)
+
+    if (valid) {
+      const validationError = checkSetSold(
+        commissionValues,
+        originalOwnerValues,
+        buyer1,
+        buyer2
+      )
+      if (validationError) {
+        message.error(validationError)
+        setLoading(false)
+        return
+      }
+
+      try {
+        //calculate total commission
+        const totalCommission =
+          (commissionValues.firstPartPrice *
+            commissionValues.firstPartPercentage) /
+            100 +
+          (commissionValues.restPartPrice *
+            commissionValues.restPartPercentage) /
+            100 -
+          850
+        const updateSummaryData: PropertyUpdateSummary = {
+          guid: propertyGuid,
+          soldPrice: commissionValues.soldPrice,
+          firstPartPrice: commissionValues.firstPartPrice,
+          firstPartPercentage: commissionValues.firstPartPercentage,
+          restPartPrice: commissionValues.restPartPrice,
+          restPartPercentage: commissionValues.restPartPercentage,
+          commission: totalCommission,
+          buyer1FirstName: buyer1?.firstName,
+          buyer1LastName: buyer1?.lastName,
+          buyer1PhoneNumber: buyer1?.phoneNumber,
+          buyer1Email: buyer1?.email,
+          buyer2FirstName: buyer2?.firstName,
+          buyer2LastName: buyer2?.lastName,
+          buyer2PhoneNumber: buyer2?.phoneNumber,
+          buyer2Email: buyer2?.email,
+          originalOwnerFirstName: originalOwnerValues.originalOwnerFirstName,
+          originalOwnerLastName: originalOwnerValues.originalOwnerLastName,
+          originalOwnerPhoneNumber:
+            originalOwnerValues.originalOwnerPhoneNumber,
+          originalOwnerEmail: originalOwnerValues.originalOwnerEmail
+        }
+        await SetSold(updateSummaryData)
+        message.success('Set Sold successfully!')
+        props.update()
+        setVisible(false)
+      } catch (error) {
+        let errorMessage = 'Failed to mark property as sold'
+        if (error instanceof AxiosError) {
+          errorMessage = error.response?.data?.message || error.message
+        } else if (error instanceof Error) {
+          errorMessage = error.message
+        }
+        message.error(errorMessage)
+      } finally {
+        setLoading(false)
+      }
+    }
+  }
+
+  const checkSetSold = (
+    commissionValues: any,
+    originalOwnerValues: any,
+    buyer1Values: any,
+    buyer2Values: any
+  ) => {
+    const {
+      soldPrice,
+      firstPartPrice,
+      firstPartPercentage,
+      restPartPrice,
+      restPartPercentage
+    } = commissionValues
+
+    const { originalOwnerFirstName, originalOwnerLastName } =
+      originalOwnerValues
+
+    // Ensure originalOwner fields are not empty
+    if (!originalOwnerFirstName || !originalOwnerLastName) {
+      return 'Original owner information cannot be empty'
+    }
+
+    // Ensure at least one buyer's information is provided
+    const buyer1Filled = buyer1Values.firstName && buyer1Values.lastName
+    const buyer2Filled = buyer2Values.firstName && buyer2Values.lastName
+
+    if (!buyer1Filled && !buyer2Filled) {
+      return "At least one buyer's information must be provided"
+    }
+
+    // Ensure financial details are not empty
+    if (
+      !soldPrice ||
+      !firstPartPrice ||
+      !firstPartPercentage ||
+      !restPartPrice ||
+      !restPartPercentage
+    ) {
+      return 'Financial details cannot be empty'
+    }
+
+    return null // No validation errors
+  }
+
   return (
     <Modal
       title={action === 'create' ? 'Create Property' : 'Edit Property'}
@@ -365,6 +512,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
       onCancel={onCancelClick}
       confirmLoading={loading}
       maskClosable={false}
+      destroyOnClose={true}
       footer={[
         <Button
           key='sold'

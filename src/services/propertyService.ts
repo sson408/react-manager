@@ -111,3 +111,20 @@ export const BatchDeleteProperty = async (
     throw error
   }
 }
+
+export const SetSold = async (
+  updateSummary: PropertyUpdateSummary,
+  config: IConfig = { showLoading: true, showError: true }
+): Promise<Result> => {
+  try {
+    const response = await httpService.post<Result>(
+      '/property/setSold',
+      updateSummary,
+      config
+    )
+    return response
+  } catch (error) {
+    console.error('Error adding property:', error)
+    throw error
+  }
+}

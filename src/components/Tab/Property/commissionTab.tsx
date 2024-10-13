@@ -153,25 +153,28 @@ const CommissionTab: React.FC<CommissionTabProps> = ({ form }) => {
       </Form.Item>
       <Form.Item
         label='First Part'
-        rules={[
-          { required: true, message: 'Please enter first part percentage' }
-        ]}
+        rules={[{ required: true, message: 'Please enter first part Details' }]}
       >
         <Space.Compact>
-          <Input
-            type='number'
-            className={`${styles.longTextBox} ${styles.borderRadius}`}
-            onChange={onFirstPartValueChange}
-            value={firstPart}
-            prefix='$'
-          />
-          <Input
-            type='number'
-            className={`${styles.shortTextBox} ${styles.marginLeft5} ${styles.borderRadius}`}
-            onChange={onFirstPartPercentageChange}
-            value={firstPartPercentage}
-            suffix='%'
-          />
+          <Form.Item name='firstPartPrice' noStyle>
+            <Input
+              type='number'
+              className={`${styles.longTextBox} ${styles.borderRadius}`}
+              onChange={onFirstPartValueChange}
+              value={firstPart}
+              prefix='$'
+            />
+          </Form.Item>
+          <Form.Item name='firstPartPercentage' noStyle>
+            <Input
+              type='number'
+              className={`${styles.shortTextBox} ${styles.marginLeft5} ${styles.borderRadius}`}
+              onChange={onFirstPartPercentageChange}
+              value={firstPartPercentage}
+              suffix='%'
+            />
+          </Form.Item>
+
           <Typography.Text
             className={`${styles.marginLeft10} ${styles.marginTop5}`}
           >
@@ -185,24 +188,30 @@ const CommissionTab: React.FC<CommissionTabProps> = ({ form }) => {
       <Form.Item
         label='Rest'
         rules={[
-          { required: true, message: 'Please enter second part percentage' }
+          { required: true, message: 'Please enter second part details' }
         ]}
       >
         <Space.Compact>
-          <Input
-            type='number'
-            className={`${styles.longTextBox} ${styles.borderRadius}`}
-            onChange={onRestValueChange}
-            value={rest}
-            prefix='$'
-          />
-          <Input
-            type='number'
-            className={`${styles.shortTextBox} ${styles.marginLeft5} ${styles.borderRadius}`}
-            onChange={onRestPercentageChange}
-            value={restPercentage}
-            suffix='%'
-          />
+          <Form.Item name='restPartPrice' noStyle>
+            <Input
+              type='number'
+              className={`${styles.longTextBox} ${styles.borderRadius}`}
+              onChange={onRestValueChange}
+              value={rest}
+              prefix='$'
+            />
+          </Form.Item>
+
+          <Form.Item name='restPartPercentage' noStyle>
+            <Input
+              type='number'
+              className={`${styles.shortTextBox} ${styles.marginLeft5} ${styles.borderRadius}`}
+              onChange={onRestPercentageChange}
+              value={restPercentage}
+              suffix='%'
+            />
+          </Form.Item>
+
           <Typography.Text
             className={`${styles.marginLeft10} ${styles.marginTop5}`}
           >
@@ -213,7 +222,7 @@ const CommissionTab: React.FC<CommissionTabProps> = ({ form }) => {
           </Typography.Text>
         </Space.Compact>
       </Form.Item>
-      <Form.Item label='Total'>
+      <Form.Item label='Total' name='commission'>
         <Typography.Text>
           {totalCommission !== undefined
             ? numeral(totalCommission).format('$0,0.0')

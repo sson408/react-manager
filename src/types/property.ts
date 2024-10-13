@@ -20,13 +20,15 @@ export interface PropertyDetail {
   originalOwnerPhoneNumber: string
   originalOwnerEmail: string
   imageUrl: string
-  listingPrice: string
   soldPrice: number
   typeId: number
-  floorArea: number
-  totalArea: number
   dateTimeDisplay: string
   updatedDateTimeDisplay: string
+  firstPartPrice: number
+  firstPartPercentage: number
+  restPartPrice: number
+  restPartPercentage: number
+  commission: number
 }
 
 export interface PropertyUpdateSummary {
@@ -37,6 +39,24 @@ export interface PropertyUpdateSummary {
   listingAgent1Guid?: string
   listingAgent2Guid?: string
   dateTimeStamp?: number
+  firstPartPrice?: number
+  firstPartPercentage?: number
+  restPartPrice?: number
+  restPartPercentage?: number
+  commission?: number
+  buyer1FirstName?: string
+  buyer1LastName?: string
+  buyer1PhoneNumber?: string
+  buyer1Email?: string
+  buyer2FirstName?: string
+  buyer2LastName?: string
+  buyer2PhoneNumber?: string
+  buyer2Email?: string
+  originalOwnerFirstName?: string
+  originalOwnerLastName?: string
+  originalOwnerPhoneNumber?: string
+  originalOwnerEmail?: string
+  soldPrice?: number
 }
 
 export interface PropertySearchSummary {
