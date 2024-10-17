@@ -16,7 +16,7 @@ const ModalUser = (props: IModalProp<UserDetail>) => {
   const [form] = Form.useForm()
   const [visible, setVisbile] = useState(false)
   const [action, setAction] = useState<IAction>('create')
-
+  const [data, setData] = useState<UserDetail>()
   const [userGuid, setUserGuid] = useState('')
   //expose open method
   useImperativeHandle(props.mRef, () => {
@@ -33,6 +33,7 @@ const ModalUser = (props: IModalProp<UserDetail>) => {
     setVisbile(true)
 
     if (type === 'edit' && data) {
+      setData(data)
       //console.log('data:', data)
       setUserGuid(data.guid)
       form.setFieldsValue({
@@ -266,7 +267,10 @@ const ModalUser = (props: IModalProp<UserDetail>) => {
             }
           ]}
         >
-          <Select placeholder='Please select a department'>
+          <Select
+            placeholder='Please select a department'
+            disabled={action === 'edit' && data?.userRoleId !== 1}
+          >
             <Select.Option value={1}>Admin</Select.Option>
             <Select.Option value={2}>Sales</Select.Option>
             <Select.Option value={3}>Marketing</Select.Option>
@@ -282,7 +286,10 @@ const ModalUser = (props: IModalProp<UserDetail>) => {
           /> */}
         </Form.Item>
         <Form.Item label='Status' name='stateId' rules={[{ required: true }]}>
-          <Select placeholder='Please select a statue'>
+          <Select
+            placeholder='Please select a statue'
+            disabled={action === 'edit' && data?.userRoleId !== 1}
+          >
             <Select.Option value={1}>Active</Select.Option>
             <Select.Option value={2}>Inactive</Select.Option>
           </Select>
@@ -292,7 +299,10 @@ const ModalUser = (props: IModalProp<UserDetail>) => {
           name='userRoleId'
           rules={[{ required: true }]}
         >
-          <Select placeholder='Please select a role'>
+          <Select
+            placeholder='Please select a role'
+            disabled={action === 'edit' && data?.userRoleId !== 1}
+          >
             <Select.Option value={1}>Admin</Select.Option>
             <Select.Option value={2}>Normal User</Select.Option>
           </Select>

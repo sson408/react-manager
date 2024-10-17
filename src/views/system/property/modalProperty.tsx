@@ -31,6 +31,7 @@ import {
 } from '../../../services/propertyService'
 import dayjs from 'dayjs'
 import storage from '../../../utils/storage'
+import { useUserAndUiState } from '../../../hooks/useUserAndUiState'
 
 const ModalProperty = (props: IModalProp<PropertyDetail>) => {
   const [action, setAction] = useState<IAction>('create')
@@ -46,6 +47,9 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
   const [agentList, setAgentList] = useState<UserDetail[]>([])
   const addressInputRef = useRef<InputRef>(null)
   const dateFormate = 'DD MMM YYYY'
+
+  const { currentUser } = useUserAndUiState()
+  const isAdmin = currentUser?.userRoleId === 1
 
   const beforeUpload = (file: RcFile) => {
     const isJpgOrPng =
@@ -128,7 +132,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
           form={form}
           labelCol={{ span: 4 }}
           labelAlign='right'
-          disabled={isSold}
+          disabled={isSold || !isAdmin}
         >
           <Form.Item
             label='Address'
@@ -232,17 +236,24 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
     {
       key: '2',
       label: 'Commission',
-      children: <CommissionTab form={commissionForm} disabled={isSold} />
+      children: (
+        <CommissionTab form={commissionForm} disabled={isSold || !isAdmin} />
+      )
     },
     {
       key: '3',
       label: 'Buyers',
-      children: <BuyerTab form={buyerForm} disabled={isSold} />
+      children: <BuyerTab form={buyerForm} disabled={isSold || !isAdmin} />
     },
     {
       key: '4',
       label: 'Original Owner',
-      children: <OriginalOwnerTab form={originalOwnerForm} disabled={isSold} />
+      children: (
+        <OriginalOwnerTab
+          form={originalOwnerForm}
+          disabled={isSold || !isAdmin}
+        />
+      )
     }
   ]
 
@@ -574,7 +585,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
           type='primary'
           onClick={() => handleSoldClick()}
           style={{ float: 'left' }}
-          disabled={isSold}
+          disabled={isSold || !isAdmin}
         >
           Sold
         </Button>,
@@ -586,7 +597,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
           type='primary'
           onClick={onSaveClick}
           loading={loading}
-          disabled={isSold}
+          disabled={isSold || !isAdmin}
         >
           {action === 'create' ? 'Create New' : 'Save Changes'}
         </Button>

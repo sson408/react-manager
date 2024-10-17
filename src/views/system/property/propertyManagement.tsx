@@ -12,6 +12,7 @@ import ModalProperty from './modalProperty'
 import { IAction } from '../../../types/modal'
 import { message } from '../../../utils/AntdGlobal'
 import { AxiosError } from 'axios'
+import { useUserAndUiState } from '../../../hooks/useUserAndUiState'
 
 export const PropertyList = () => {
   const [data, setData] = useState<PropertyDetail[]>([])
@@ -25,6 +26,9 @@ export const PropertyList = () => {
   const userRef = useRef<{
     open: (type: IAction, data?: PropertyDetail) => void
   }>()
+
+  const { currentUser } = useUserAndUiState()
+  const isAdmin = currentUser?.userRoleId === 1
 
   useEffect(() => {
     getPropertyList()
@@ -210,13 +214,15 @@ export const PropertyList = () => {
             <Button type='text' onClick={() => onRowEditClick(record)}>
               Edit
             </Button>
-            <Button
-              type='text'
-              danger
-              onClick={() => onRowDeleteClick(record.guid)}
-            >
-              Delete
-            </Button>
+            {isAdmin && (
+              <Button
+                type='text'
+                danger
+                onClick={() => onRowDeleteClick(record.guid)}
+              >
+                Delete
+              </Button>
+            )}
           </Space>
         )
       }
@@ -269,14 +275,16 @@ export const PropertyList = () => {
       <div className='base-table'>
         <div className='header-wrapper'>
           <div className='title'>Property List</div>
-          <div className='action'>
-            <Button type='primary' onClick={onAddClick}>
-              Add
-            </Button>
-            <Button type='primary' danger onClick={onBatchDeleteClick}>
-              Delete
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className='action'>
+              <Button type='primary' onClick={onAddClick}>
+                Add
+              </Button>
+              <Button type='primary' danger onClick={onBatchDeleteClick}>
+                Delete
+              </Button>
+            </div>
+          )}
         </div>
         <Table
           bordered

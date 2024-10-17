@@ -10,6 +10,7 @@ import { ColumnsType } from 'antd/es/table'
 import { IAction } from '../../../types/modal'
 import ModalUser from './modalUser'
 import { AxiosError } from 'axios'
+import { useUserAndUiState } from '../../../hooks/useUserAndUiState'
 
 export default function UserList() {
   const [data, setData] = useState<UserDetail[]>([])
@@ -21,6 +22,11 @@ export default function UserList() {
   const userRef = useRef<{
     open: (type: IAction, data?: UserDetail) => void
   }>()
+
+  //check curent user role
+
+  const { currentUser } = useUserAndUiState()
+  const isAdmin = currentUser?.userRoleId === 1
 
   // Initial user fetch when the component is mounted
   useEffect(() => {
@@ -194,12 +200,16 @@ export default function UserList() {
     {
       title: '',
       render(record) {
+        const isCurrentUser = currentUser.guid === record.guid
         return (
           <Space>
-            <Button type='text' onClick={() => onRowEditClick(record)}>
-              Edit
-            </Button>
-            {record.stateId !== 2 && (
+            {/* Show Edit button only if it's the current user's record */}
+            {(isAdmin || isCurrentUser) && (
+              <Button type='text' onClick={() => onRowEditClick(record)}>
+                Edit
+              </Button>
+            )}
+            {isAdmin && record.stateId !== 2 && (
               <Button
                 type='text'
                 danger
@@ -249,14 +259,16 @@ export default function UserList() {
       <div className='base-table'>
         <div className='header-wrapper'>
           <div className='title'>UserList</div>
-          <div className='action'>
-            <Button type='primary' onClick={onAddClick}>
-              Add
-            </Button>
-            <Button type='primary' danger onClick={onBatchDeleteClick}>
-              Delete
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className='action'>
+              <Button type='primary' onClick={onAddClick}>
+                Add
+              </Button>
+              <Button type='primary' danger onClick={onBatchDeleteClick}>
+                Delete
+              </Button>
+            </div>
+          )}
         </div>
         <Table
           bordered
