@@ -38,6 +38,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
   const [loading, setLoading] = useState(false)
   const [propertyGuid, setPropertyGuid] = useState('')
   const [img, setImg] = useState('')
+  const [isSold, setIsSold] = useState(false)
   const [form] = Form.useForm()
   const [commissionForm] = Form.useForm()
   const [buyerForm] = Form.useForm()
@@ -123,7 +124,12 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
       key: '1',
       label: 'Basic Details',
       children: (
-        <Form form={form} labelCol={{ span: 4 }} labelAlign='right'>
+        <Form
+          form={form}
+          labelCol={{ span: 4 }}
+          labelAlign='right'
+          disabled={isSold}
+        >
           <Form.Item
             label='Address'
             name='address'
@@ -226,17 +232,17 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
     {
       key: '2',
       label: 'Commission',
-      children: <CommissionTab form={commissionForm} />
+      children: <CommissionTab form={commissionForm} disabled={isSold} />
     },
     {
       key: '3',
       label: 'Buyers',
-      children: <BuyerTab form={buyerForm} />
+      children: <BuyerTab form={buyerForm} disabled={isSold} />
     },
     {
       key: '4',
       label: 'Original Owner',
-      children: <OriginalOwnerTab form={originalOwnerForm} />
+      children: <OriginalOwnerTab form={originalOwnerForm} disabled={isSold} />
     }
   ]
 
@@ -265,7 +271,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
         }
       }, 100)
     }
-  }, [visible, form])
+  }, [visible, form, commissionForm, buyerForm, originalOwnerForm])
 
   useImperativeHandle(props.mRef, () => {
     return {
@@ -284,9 +290,11 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
     setVisible(true)
 
     if (type === 'edit' && data) {
-      console.log('data.imageUrl', data.imageUrl)
       setPropertyGuid(data.guid)
       const dateValue = dayjs(data.dateTimeDisplay, dateFormate)
+
+      setIsSold(data.statusId === 3)
+
       form.setFieldsValue({
         address: data.address,
         typeId: data.typeId,
@@ -296,6 +304,49 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
         date: dateValue.isValid() ? dateValue : ''
       })
       setImg(`${config.fileUrl}${data.imageUrl}`)
+
+      //commission tab
+      commissionForm.setFieldsValue({
+        soldPrice: data.soldPrice,
+        firstPartPrice: data.firstPartPrice,
+        firstPartPercentage: data.firstPartPercentage,
+        restPartPrice: data.restPartPrice,
+        restPartPercentage: data.restPartPercentage,
+        commission: data.commission
+      })
+
+      //original owner tab
+      originalOwnerForm.setFieldsValue({
+        originalOwnerFirstName: data.originalOwnerFirstName,
+        originalOwnerLastName: data.originalOwnerLastName,
+        originalOwnerPhoneNumber: data.originalOwnerPhoneNumber,
+        originalOwnerEmail: data.originalOwnerEmail
+      })
+
+      // Buyers tab
+      const buyers = []
+
+      if (data.buyer1FirstName || data.buyer1LastName) {
+        buyers.push({
+          firstName: data.buyer1FirstName,
+          lastName: data.buyer1LastName,
+          phoneNumber: data.buyer1PhoneNumber,
+          email: data.buyer1Email
+        })
+      }
+
+      if (data.buyer2FirstName || data.buyer2LastName) {
+        buyers.push({
+          firstName: data.buyer2FirstName,
+          lastName: data.buyer2LastName,
+          phoneNumber: data.buyer2PhoneNumber,
+          email: data.buyer2Email
+        })
+      }
+
+      buyerForm.setFieldsValue({
+        buyers: buyers.length > 0 ? buyers : [{}]
+      })
     }
   }
 
@@ -310,6 +361,10 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
 
   const onSaveClick = async () => {
     const valid = await form.validateFields()
+    if (isSold) {
+      return // Prevent saving if the property is already sold
+    }
+
     setLoading(true)
 
     if (valid) {
@@ -519,6 +574,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
           type='primary'
           onClick={() => handleSoldClick()}
           style={{ float: 'left' }}
+          disabled={isSold}
         >
           Sold
         </Button>,
@@ -530,6 +586,7 @@ const ModalProperty = (props: IModalProp<PropertyDetail>) => {
           type='primary'
           onClick={onSaveClick}
           loading={loading}
+          disabled={isSold}
         >
           {action === 'create' ? 'Create New' : 'Save Changes'}
         </Button>

@@ -6,11 +6,12 @@ import styles from './buyerTab.module.less'
 
 interface BuyerTabProps {
   form: FormInstance
+  disabled?: boolean
 }
 
-const BuyerTab: React.FC<BuyerTabProps> = ({ form }) => {
+const BuyerTab: React.FC<BuyerTabProps> = ({ form, disabled = false }) => {
   return (
-    <Form form={form} layout='vertical'>
+    <Form form={form} layout='vertical' disabled={disabled}>
       <Form.List name='buyers' initialValue={[{}]}>
         {(fields, { add, remove }) => {
           // Limit buyers to 2
@@ -25,7 +26,12 @@ const BuyerTab: React.FC<BuyerTabProps> = ({ form }) => {
                   {fields.length > 1 && (
                     <MinusCircleOutlined
                       // Use field.name when removing
-                      onClick={() => remove(field.name)}
+                      // Disable the remove icon if disabled is true
+                      onClick={() => {
+                        if (!disabled) {
+                          remove(field.name)
+                        }
+                      }}
                       className={styles.deleteIcon}
                     />
                   )}
@@ -86,6 +92,7 @@ const BuyerTab: React.FC<BuyerTabProps> = ({ form }) => {
                     onClick={() => add()}
                     block
                     icon={<PlusOutlined />}
+                    disabled={disabled}
                   >
                     Add Buyer
                   </Button>

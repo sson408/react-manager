@@ -6,9 +6,13 @@ import numeral from 'numeral'
 
 interface CommissionTabProps {
   form: FormInstance
+  disabled?: boolean
 }
 
-const CommissionTab: React.FC<CommissionTabProps> = ({ form }) => {
+const CommissionTab: React.FC<CommissionTabProps> = ({
+  form,
+  disabled = false
+}) => {
   const [salePrice, setSalePrice] = useState<number | undefined>(undefined)
   const [firstPart, setFirstPart] = useState<number | undefined>(undefined)
   const [firstPartPercentage, setFirstPartPercentage] = useState<
@@ -132,10 +136,18 @@ const CommissionTab: React.FC<CommissionTabProps> = ({ form }) => {
   ) => {
     const totalCommission = firstPartCommission + restPartCommission - 850
     setTotalCommission(totalCommission)
+
+    // Update the form field
+    form.setFieldsValue({ commission: totalCommission })
   }
 
   return (
-    <Form form={form} labelCol={{ span: 4 }} labelAlign='right'>
+    <Form
+      form={form}
+      labelCol={{ span: 4 }}
+      labelAlign='right'
+      disabled={disabled}
+    >
       <FormItem
         label='Sale Price'
         name='soldPrice'
@@ -223,11 +235,16 @@ const CommissionTab: React.FC<CommissionTabProps> = ({ form }) => {
         </Space.Compact>
       </Form.Item>
       <Form.Item label='Total' name='commission'>
-        <Typography.Text>
-          {totalCommission !== undefined
-            ? numeral(totalCommission).format('$0,0.0')
-            : ''}
-        </Typography.Text>
+        <Input
+          className={`${styles.longTextBox}`}
+          prefix='$'
+          value={
+            totalCommission !== undefined
+              ? numeral(totalCommission).format('0,0.0')
+              : ''
+          }
+          readOnly
+        />
       </Form.Item>
     </Form>
   )

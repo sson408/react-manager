@@ -5,11 +5,20 @@ import styles from './originalOwerTab.module.less'
 
 interface OriginalOwnerTabProps {
   form: FormInstance
+  disabled?: boolean
 }
 
-const OriginalOwnerTab: React.FC<OriginalOwnerTabProps> = ({ form }) => {
+const OriginalOwnerTab: React.FC<OriginalOwnerTabProps> = ({
+  form,
+  disabled = false
+}) => {
   return (
-    <Form form={form} layout='vertical' className={styles.ownerContainer}>
+    <Form
+      form={form}
+      layout='vertical'
+      className={styles.ownerContainer}
+      disabled={disabled}
+    >
       <Row gutter={16}>
         <Col span={12}>
           <Form.Item
